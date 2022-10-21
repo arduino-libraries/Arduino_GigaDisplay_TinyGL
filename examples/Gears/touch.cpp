@@ -22,18 +22,7 @@ extern bool touchpad_pressed;
 #define RST_PIN PinNameToIndex(PD_5)
 #endif
 
-void handleTouch(int8_t contacts, GTPoint *points) {
-  touchpad_pressed = true;
-  printf("Contacts: %d\n", contacts);
-  for (uint8_t i = 0; i < contacts; i++) {
-    if (i == 0) {
-      touchpad_x = points[i].x;
-      touchpad_y = points[i].y;
-    }
-    printf("C%d: #%d %d,%d s:%d\n", i, points[i].trackId, points[i].x, points[i].y, points[i].area);
-    yield();
-  }
-}
+void handleTouch(int8_t contacts, GTPoint *points);
 
 void touchStart() {
   if (touch.begin(INT_PIN, RST_PIN) != true) {
