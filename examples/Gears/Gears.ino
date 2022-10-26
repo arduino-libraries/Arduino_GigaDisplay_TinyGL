@@ -49,9 +49,9 @@ void handleTouch(int8_t contacts, GTPoint *points) {
 
     if (abs(abs((uint32_t)points[0].x - (uint32_t)points[1].x) * abs((uint32_t)points[0].y - (uint32_t)points[1].y)) <
         abs(abs((uint32_t)prev_points[0].x - (uint32_t)prev_points[1].x) * abs((uint32_t)prev_points[0].y - (uint32_t)prev_points[1].y))) {
-      zoom_scale = 0.95f;
-    } else {
       zoom_scale = 1.05f;
+    } else {
+      zoom_scale = 0.95f;
     }
     glScalef(zoom_scale, zoom_scale, zoom_scale);
   }
