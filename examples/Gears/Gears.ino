@@ -37,6 +37,9 @@ void handleTouch(int8_t contacts, GTPoint *points) {
   }
   if (contacts == 1) {
     // rotate the scene
+    if (abs(prev_points[0].x - points[0].x) + abs(prev_points[0].y - points[0].y) > 50) {
+      goto save;
+    }
     gears_rotate(prev_points[0].x - points[0].x,
                  prev_points[0].y - points[0].y,
                  0);
@@ -47,11 +50,13 @@ void handleTouch(int8_t contacts, GTPoint *points) {
       goto save;
     }
 
-    if (abs(abs((uint32_t)points[0].x - (uint32_t)points[1].x) * abs((uint32_t)points[0].y - (uint32_t)points[1].y)) <
-        abs(abs((uint32_t)prev_points[0].x - (uint32_t)prev_points[1].x) * abs((uint32_t)prev_points[0].y - (uint32_t)prev_points[1].y))) {
-      zoom_scale = 1.05f;
-    } else {
+    auto area_now = abs((int)points[0].x - (int)points[1].x) * abs((int)points[0].y - (int)points[1].y);
+    auto area_before = abs((int)prev_points[0].x - (int)prev_points[1].x) * abs((int)prev_points[0].y - (int)prev_points[1].y);
+
+    if (area_now < area_before) {
       zoom_scale = 0.95f;
+    } else {
+      zoom_scale = 1.05f;
     }
     glScalef(zoom_scale, zoom_scale, zoom_scale);
   }
@@ -83,7 +88,7 @@ static void anim(lv_timer_t * timer) {
 
 void setup() {
   Serial.begin(115200);
-  //while (!Serial);
+  while (!Serial);
 
 #ifdef ARDUINO_GIGA
   i2c_touch_setup();
@@ -112,7 +117,7 @@ void setup() {
   init_gears();
   reshape(WINDOWX, WINDOWY);
 
-  lv_timer_create(anim, 32, NULL);
+  lv_timer_create(anim, 10, NULL);
 }
 
 void loop() {

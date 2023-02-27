@@ -2,8 +2,6 @@
 #include "Goodix.h"  // Arduino_GT911_Library
 #include "pinDefinitions.h"
 
-Goodix touch = Goodix();
-
 REDIRECT_STDOUT_TO(Serial);
 
 extern uint16_t touchpad_x;
@@ -21,6 +19,8 @@ extern bool touchpad_pressed;
 #define INT_PIN PinNameToIndex(PD_4)
 #define RST_PIN PinNameToIndex(PD_5)
 #endif
+
+Goodix touch = Goodix();
 
 void handleTouch(int8_t contacts, GTPoint *points);
 
