@@ -3,18 +3,15 @@ extern "C" {
 #include "zbuffer.h"
 #include "GL/gl.h"
 }
-#include "Portenta_lvgl.h"
+#include "Arduino_H7_Video.h"
+#include "Arduino_GigaDisplayTouch.h"
 #include "dsi.h"
+#include "lvgl.h"
 #include "SDRAM.h"
-#include "Goodix.h"  // Arduino_GT911_Library
-
-void LCD_ST7701_Init();
 
 uint16_t touchpad_x;
 uint16_t touchpad_y;
 
-void i2c_touch_setup();
-void i2c_touch_loop();
 extern "C" void init_gears();
 extern "C" void draw_gears();
 extern "C" void idle_gears();
@@ -26,11 +23,11 @@ extern "C" void tkSwapBuffers(void)
 
 }
 
-GTPoint prev_points[3];
+GDTpoint_t prev_points[3];
 float zoom_scale = 1.0f;
 uint32_t first_touch = 0;
 
-void handleTouch(int8_t contacts, GTPoint *points) {
+void handleTouch(uint8_t contacts, GDTpoint_t *points) {
   if (first_touch == 0 || millis() - first_touch > 500) {
     first_touch = millis();
     goto save;
@@ -86,25 +83,28 @@ static void anim(lv_timer_t * timer) {
   lv_obj_invalidate(canvas);
 }
 
-void setup() {
-  Serial.begin(115200);
-  while (!Serial);
-
 #ifdef ARDUINO_GIGA
-  i2c_touch_setup();
-  giga_init_video(LANDSCAPE);
-  LCD_ST7701_Init();
+#ifdef LANDSCAPE
+  Arduino_H7_Video display(800, 480, GigaDisplayShield);
 #else
-  portenta_init_video();
+  Arduino_H7_Video display(480, 800, GigaDisplayShield);
+#endif
+  Arduino_GigaDisplayTouch touch;
+#else
+  Arduino_H7_Video display(720, 480, USBCVideo);
 #endif
 
-  if (LANDSCAPE) {
-    WINDOWX = stm32_getYSize();
-    WINDOWY = stm32_getXSize();
-  } else {
-    WINDOWX = stm32_getXSize();
-    WINDOWY = stm32_getYSize();
-  }
+void setup() {
+  Serial.begin(115200);
+
+  display.begin();
+#ifdef ARDUINO_GIGA
+  touch.begin();
+  touch.onDetect(handleTouch);
+#endif
+
+  WINDOWX = display.width();
+  WINDOWY = display.height();
 
   cbuf = (lv_color_t*)ea_malloc(WINDOWX * WINDOWY * 4);
 
@@ -121,9 +121,6 @@ void setup() {
 }
 
 void loop() {
-#ifdef ARDUINO_GIGA
-  i2c_touch_loop();
-#endif
 #if LVGL_VERSION_MAJOR > 7
   lv_timer_handler();
 #else
