@@ -10,6 +10,7 @@ void initSharedState(GLContext *c)
   s->texture_hash_table=
       gl_zalloc(sizeof(GLTexture *) * TEXTURE_HASH_TABLE_SIZE);
 
+  /* FIXME: figure out how i'm supposed to properly free this */
   alloc_texture(c,0);
 }
 
@@ -23,6 +24,10 @@ void endSharedState(GLContext *c)
   }
   gl_free(s->lists);
 
+  for(i=0;i<TEXTURE_HASH_TABLE_SIZE;i++) {
+    if (s->texture_hash_table[i] != NULL)
+	  gl_free(s->texture_hash_table[i]);
+  }
   gl_free(s->texture_hash_table);
 }
 
@@ -183,7 +188,15 @@ void glInit(void *zbuffer1)
 
 void glClose(void)
 {
+  int i;
   GLContext *c=gl_get_context();
   endSharedState(c);
+
+  gl_free(c->vertex);
+
+  for(i=0;i<3;i++) {
+    gl_free(c->matrix_stack[i]);
+  }
+
   gl_free(c);
 }

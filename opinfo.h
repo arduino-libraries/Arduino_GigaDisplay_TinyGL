@@ -23,6 +23,7 @@ ADD_OP(Scale,3,"%f %f %f")
 
 ADD_OP(Viewport,4,"%d %d %d %d")
 ADD_OP(Frustum,6,"%f %f %f %f %f %f")
+ADD_OP(Ortho,6,"%f %f %f %f %f %f")
 
 ADD_OP(Material,6,"%C %C %f %f %f %f")
 ADD_OP(ColorMaterial,2,"%C %C")
@@ -64,6 +65,8 @@ ADD_OP(VertexPointer, 4, "%d %C %d %p")
 ADD_OP(ColorPointer, 4, "%d %C %d %p")
 ADD_OP(NormalPointer, 3, "%C %d %p")
 ADD_OP(TexCoordPointer, 4, "%d %C %d %p")
+ADD_OP(DrawElements, 4, "%d %d %d %p")
+ADD_OP(DrawArrays, 3, "%d %d %d")
 
 /* opengl 1.1 polygon offset */
 ADD_OP(PolygonOffset, 2, "%f %f")

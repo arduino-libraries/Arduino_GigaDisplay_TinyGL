@@ -9,6 +9,17 @@
 #include <string.h>
 #include "zbuffer.h"
 
+/* if you're compiling this on a big-endian system, sorry */
+#ifndef __BIG_ENDIAN
+#define __BIG_ENDIAN 1234
+#endif
+#ifndef __LITTLE_ENDIAN
+#define __LITTLE_ENDIAN 4321
+#endif
+#ifndef __BYTE_ORDER
+#define __BYTE_ORDER __LITTLE_ENDIAN
+#endif
+
 ZBuffer *ZB_open(int xsize, int ysize, int mode,
 		 int nb_colors,
 		 unsigned char *color_indexes,
@@ -30,7 +41,7 @@ ZBuffer *ZB_open(int xsize, int ysize, int mode,
     switch (mode) {
 #ifdef TGL_FEATURE_8_BITS
     case ZB_MODE_INDEX:
-	ZB_initDither(zb, nb_colors, color_indexes, color_table);
+		ZB_initDither(zb, nb_colors, color_indexes, color_table);
 	break;
 #endif
 #ifdef TGL_FEATURE_32_BITS
@@ -80,7 +91,7 @@ void ZB_close(ZBuffer * zb)
 #endif
 
     if (zb->frame_buffer_allocated)
-	gl_free(zb->pbuf);
+		gl_free(zb->pbuf);
 
     gl_free(zb->zbuf);
     gl_free(zb);
@@ -164,7 +175,7 @@ static void ZB_copyFrameBufferRGB32(ZBuffer * zb,
 	n = zb->xsize >> 2;
 	do {
 	    v = *(unsigned int *) q;
-#if BYTE_ORDER == BIG_ENDIAN
+#if __BYTE_ORDER == __BIG_ENDIAN
 	    RGB16_TO_RGB32(w1, w0, v);
 #else
 	    RGB16_TO_RGB32(w0, w1, v);
@@ -173,7 +184,7 @@ static void ZB_copyFrameBufferRGB32(ZBuffer * zb,
 	    p[1] = w1;
 
 	    v = *(unsigned int *) (q + 2);
-#if BYTE_ORDER == BIG_ENDIAN
+#if __BYTE_ORDER == __BIG_ENDIAN
 	    RGB16_TO_RGB32(w1, w0, v);
 #else
 	    RGB16_TO_RGB32(w0, w1, v);
@@ -200,7 +211,7 @@ static void ZB_copyFrameBufferRGB32(ZBuffer * zb,
 /* XXX: packed pixel 24 bit support not tested */
 /* XXX: big endian case not optimised */
 
-#if BYTE_ORDER == BIG_ENDIAN
+#if __BYTE_ORDER == __BIG_ENDIAN
 
 #define RGB16_TO_RGB24(p0,p1,p2,v1,v2)\
 {\
@@ -277,7 +288,7 @@ void ZB_copyFrameBuffer(ZBuffer * zb, void *buf,
     switch (zb->mode) {
 #ifdef TGL_FEATURE_8_BITS
     case ZB_MODE_INDEX:
-	ZB_ditherFrameBuffer(zb, buf, linesize >> 1);
+		ZB_ditherFrameBuffer(zb, buf, linesize);
 	break;
 #endif
 #ifdef TGL_FEATURE_16_BITS
